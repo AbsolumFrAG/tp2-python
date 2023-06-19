@@ -17,3 +17,15 @@ for eleve in dicEleves:
     eleve_folder = os.path.join('eleves', eleve)
     if not os.path.exists(eleve_folder):
         os.makedirs(eleve_folder)
+
+    # Créer un fichier appréciation.txt dans le dossier de chaque élève
+    with open(os.path.join(eleve_folder, 'appréciation.txt'), 'w') as file:
+        note = dicEleves[eleve]['notes']['tp1']
+        file.write(str(note))
+
+    # Créer un fichier notes.csv dans le dossier de chaque élève
+    with open(os.path.join(eleve_folder, 'notes.csv'), 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['TP1', 'TP2', 'TP3'])
+        notes = dicEleves[eleve]['notes']
+        writer.writerow([notes['tp1'], notes['tp2'], notes['tp3']])
