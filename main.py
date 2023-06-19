@@ -1,40 +1,86 @@
-import os
 import json
-import csv
 
-dicEleves = {
-    'eleve1': {'notes': {'tp1': 10, 'tp2': 13, 'tp3': 17}, 'appréciation': 'moyenne'},
-    'eleve2': {'notes': {'tp1': 19, 'tp2': 11, 'tp3': 14}, 'appréciation': 'Très bien'},
-    'eleve3': {'notes': {'tp1': 15, 'tp2': 8, 'tp3': 13}, 'appréciation': 'Bonne'}
-}
+def load_data():
+    try:
+        with open('data.json', 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
 
-# Créer un dossier 'eleves' s'il n'existe pas déjà
-if not os.path.exists('eleves'):
-    os.makedirs('eleves')
+def save_data(data):
+    with open('data.json', 'w') as file:
+        json.dump(data, file, indent=4)
 
-# Parcourir chaque élève et créer un dossier pour chaque élève
-for eleve in dicEleves:
-    eleve_folder = os.path.join('eleves', eleve)
-    if not os.path.exists(eleve_folder):
-        os.makedirs(eleve_folder)
+def add_student(data):
+    student_name = input("Nom de l'élève : ")
+    if student_name in data:
+        print("Cet élève existe déjà.")
+        return
+    data[student_name] = {'notes': {}, 'appréciation': ''}
+    print(f"L'élève '{student_name}' a été ajouté.")
 
-    # Créer un fichier appréciation.txt dans le dossier de chaque élève
-    with open(os.path.join(eleve_folder, 'appréciation.txt'), 'w') as file:
-        note = dicEleves[eleve]['notes']['tp1']
-        file.write(str(note))
+def add_grade(data):
+    student_name = input("Nom de l'élève : ")
+    if student_name not in data:
+        print("Cet élève n'existe pas.")
+        return
+    tp_name = input("Nom du TP : ")
+    grade = input("Note : ")
+    data[student_name]['notes'][tp_name] = int(grade)
+    print(f"La note du TP '{tp_name}' pour l'élève '{student_name}' a été ajoutée.")
 
-    # Créer un fichier notes.csv dans le dossier de chaque élève
-    with open(os.path.join(eleve_folder, 'notes.csv'), 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['TP1', 'TP2', 'TP3'])
-        notes = dicEleves[eleve]['notes']
-        writer.writerow([notes['tp1'], notes['tp2'], notes['tp3']])
+def update_appreciation(data):
+    student_name = input("Nom de l'élève : ")
+    if student_name not in data:
+        print("Cet élève n'existe pas.")
+        return
+    appreciation = input("Nouvelle appréciation : ")
+    data[student_name]['appréciation'] = appreciation
+    print(f"L'appréciation de l'élève '{student_name}' a été mise à jour.")
 
-    # Créer un fichier json dans le dossier de chaque élève avec la structure demandée
-    eleve_data = {
-        'moyenne': sum(notes.values()) / len(notes),
-        'min': min(notes.values()),
-        'max': max(notes.values())
-    }
-    with open(os.path.join(eleve_folder, 'eleve.json'), 'w') as file:
-        json.dump(eleve_data, file, indent=4)
+def list_students(data):
+    for student, info in data.items():
+        print(f"Élève : {student}")
+        print("Notes :")
+        for tp, grade in info['notes'].items():
+            print(f"- {tp}: {grade}")
+        print(f"Appréciation : {info['appréciation']}")
+        print("")
+
+def generate_stats(data):
+    stats = {}
+    for student, info in data.items():
+        notes = info['notes'].values()
+        stats[student] = {
+            'moyenne': sum(notes) / len(notes),
+            'min': min(notes),
+            'max': max(notes)
+        }
+    with open('stats.json', 'w') as file:
+        json.dump(stats, file, indent=4)
+    print("Les statistiques ont été générées.")
+
+def main():
+    data = load_data()
+    
+    while True:
+        command = input("Commande : ")
+
+        if command == 'add':
+            add_student(data)
+        elif command == 'notes':
+            add_grade(data)
+        elif command == 'appr':
+            update_appreciation(data)
+        elif command == 'list':
+            list_students(data)
+        elif command == 'quitter':
+            save_data(data)
+            generate_stats(data)
+            print("Données sauvegardées. Au revoir !")
+            break
+        else:
+            print("Pas compris")
+
+if __name__ == '__main__':
+    main()
