@@ -29,3 +29,12 @@ for eleve in dicEleves:
         writer.writerow(['TP1', 'TP2', 'TP3'])
         notes = dicEleves[eleve]['notes']
         writer.writerow([notes['tp1'], notes['tp2'], notes['tp3']])
+
+    # Créer un fichier json dans le dossier de chaque élève avec la structure demandée
+    eleve_data = {
+        'moyenne': sum(notes.values()) / len(notes),
+        'min': min(notes.values()),
+        'max': max(notes.values())
+    }
+    with open(os.path.join(eleve_folder, 'eleve.json'), 'w') as file:
+        json.dump(eleve_data, file, indent=4)
