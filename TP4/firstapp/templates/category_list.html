@@ -1,0 +1,11 @@
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+<ul class="list-group">
+  {% for category in categories %}
+  <li class="list-group-item">
+    <a href="/products/{{ category.id }}/">{{ category.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
